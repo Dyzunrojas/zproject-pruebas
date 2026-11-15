@@ -1,0 +1,3 @@
+selenium_tests/capturas/
+.pytest_cache/
+__pycache__/
