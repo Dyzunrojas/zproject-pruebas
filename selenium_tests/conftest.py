@@ -1,6 +1,6 @@
-"""Configuracion comun de las pruebas Selenium (modulo sparePart).
+﻿"""Configuracion comun de las pruebas Selenium (modulo sparePart).
 
-Variables de entorno:
+Variables de entorno (todas opcionales salvo APP_PASSWORD):
   BASE_URL      URL del frontend            (por defecto http://localhost:5173)
   APP_USER      usuario con permisos        (por defecto admin)
   APP_PASSWORD  contrasena de ese usuario   (obligatoria)
@@ -8,12 +8,11 @@ Variables de entorno:
   HEADLESS      1 para correr sin ventana   (por defecto 0)
 """
 import os
+import tempfile
 from pathlib import Path
 
 import pytest
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 BASE_URL = os.getenv("BASE_URL", "http://localhost:5173").rstrip("/")
@@ -25,19 +24,24 @@ CAPTURAS = Path(__file__).parent / "capturas"
 TIMEOUT = 15
 
 
-def _crear_driver():
-    if BROWSER == "edge":
-        opciones = webdriver.EdgeOptions()
-        if HEADLESS:
-            opciones.add_argument("--headless=new")
-        opciones.add_argument("--window-size=1400,900")
-        return webdriver.Edge(options=opciones)
-    opciones = webdriver.ChromeOptions()
+def _opciones_comunes(opciones):
     if HEADLESS:
         opciones.add_argument("--headless=new")
+        opciones.add_argument("--no-sandbox")
+        opciones.add_argument("--disable-dev-shm-usage")
     opciones.add_argument("--window-size=1400,900")
     opciones.add_argument("--disable-gpu")
-    return webdriver.Chrome(options=opciones)
+    opciones.add_argument("--disable-extensions")
+    opciones.add_argument("--no-first-run")
+    opciones.add_argument("--remote-debugging-port=0")
+    opciones.add_argument(f"--user-data-dir={tempfile.mkdtemp(prefix='sel_')}")
+    return opciones
+
+
+def _crear_driver():
+    if BROWSER == "edge":
+        return webdriver.Edge(options=_opciones_comunes(webdriver.EdgeOptions()))
+    return webdriver.Chrome(options=_opciones_comunes(webdriver.ChromeOptions()))
 
 
 @pytest.fixture
@@ -46,6 +50,7 @@ def driver():
         pytest.skip("Define la variable de entorno APP_PASSWORD")
     CAPTURAS.mkdir(exist_ok=True)
     d = _crear_driver()
+    d.set_page_load_timeout(60)
     d.implicitly_wait(0)
     yield d
     d.quit()

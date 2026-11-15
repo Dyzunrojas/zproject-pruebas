@@ -1,4 +1,4 @@
-﻿"""Pruebas de interfaz Selenium del modulo Repuestos que sería sparePart
+"""Pruebas de interfaz Selenium del modulo Repuestos que sería sparePart
 
 Requisitos: MySQL, backend (:8000) y frontend (:5173) corriendo, y un usuario
 con permisos spare_parts:*
@@ -108,7 +108,7 @@ def test_sel01_acceso_al_modulo_repuestos(sesion, esperar):
     assert "/spareParts" in sesion.current_url
     esperar.until(EC.visibility_of_element_located((By.XPATH, "//button[normalize-space()='Nuevo repuesto']")))
     for columna in ("Nombre", "Marca", "Número de parte", "Tipo", "Stock (unidades)", "Acciones"):
-        assert sesion.find_elements(By.XPATH, f"//th[normalize-space()='{columna}']"), f"Falta la columna {columna}"
+        esperar.until(EC.presence_of_element_located((By.XPATH, f"//th[normalize-space()='{columna}']")), f"Falta la columna {columna}")
     capturar(sesion, "sel01_modulo_repuestos")
 
 
