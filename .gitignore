@@ -1,3 +1,6 @@
 selenium_tests/capturas/
 .pytest_cache/
 __pycache__/
+resultados.jtl
+reporte_jmeter/
+jmeter.log
