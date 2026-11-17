@@ -22,7 +22,7 @@ def makeSparePart(db):
         data = SparePartCreate(
             name=name,
             brand=brand,
-            partNumber="",
+            partNumber="REP-001",
             stockUnits=stockUnits,
         )
         return service.createSparePart(db, data)
